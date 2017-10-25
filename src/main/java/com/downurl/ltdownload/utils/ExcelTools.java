@@ -107,6 +107,8 @@ public class ExcelTools {
 	
 	/** 
 	 * 调整
+	 * 
+	 * be using 实际使用的
 	 * @throws Exception  
 	 */  
 	public static void readExcelWithTitle2(String filepath) throws Exception{  
@@ -156,6 +158,8 @@ public class ExcelTools {
                         if (cell != null) {  
                             value = cell.toString();  
                             /**
+                             * 将列转为 文本形式后，避免 科学计数(如 2.423000E7等)的读取方式。
+                             * 可以读取处实际的数字 ，如 24000203 
                              * 目前见到的最简单的方法：
                              * HSSFCell cell = row.getCell(0);
                              * if(cell.getCellType == HSSFCell.CELL_TYPE_NUMERIC){
