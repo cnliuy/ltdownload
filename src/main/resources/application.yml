@@ -1,0 +1,27 @@
+server:
+  contextPath: 
+
+  port: 8099
+  
+  
+spring:
+  jackson:
+    serialization:
+      indent-output: true
+  jpa:
+    hibernate:
+      ddl-auto: update #create update
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy      
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://202.99.114.136:10012/urldownload  # test
+    username: postgres
+    password: tvpgsql135
+  data:
+    jpa:
+      repositories:
+        enabled: true
