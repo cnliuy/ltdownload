@@ -195,5 +195,123 @@ public class ExcelTools {
 	        }  
 	    }  
 	}  
+	
+	
+	/** 
+	 * 调整3 new
+	 * 
+	 * intArray 列的数组，从0列开始计数,被选中的列,如传入 {2.3} 为 excel的 第3和第4列的内容
+	 * 
+	 * be using 实际使用的
+	 * @throws Exception  
+	 */  
+	public static ArrayList<String> readExcelWithTitle_nomal(String filepath , int[] intArray) throws Exception{  
+		ArrayList<String> list = new ArrayList<String>();
+	    String fileType = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length());  
+	    InputStream is = null;  
+	    Workbook wb = null;  
+	    try {  
+	        is = new FileInputStream(filepath);  
+	          
+	        if (fileType.equals("xls")) {  
+	            wb = new HSSFWorkbook(is);  
+	        } else if (fileType.equals("xlsx")) {  
+	            wb = new XSSFWorkbook(is);  
+	        } else {  
+	            throw new Exception("读取的不是excel文件");  
+	        }          
+	        
+	          
+	        int sheetSize = wb.getNumberOfSheets();         
+	        Sheet sheet = wb.getSheetAt(0);  
+	        List<Map<String, String>> sheetList = new ArrayList<Map<String, String>>();//对应sheet页  
+	              
+	        List<String> titles = new ArrayList<String>();//放置所有的标题  
+	              
+	        int rowSize = sheet.getLastRowNum() + 1;  
+	        System.out.println("总行数："+rowSize);
+	        for (int j = 0; j < rowSize; j++) {//遍历行  
+	            Row row = sheet.getRow(j);  
+	            if (row == null) {//略过空行  
+	                   continue;  
+	            }  
+                int cellSize = row.getLastCellNum();//行中有多少个单元格，也就是有多少列  
+                if (j == 0) {//第一行是标题行  
+                    for (int k = 0; k < cellSize; k++) {  
+                        Cell cell = row.getCell(k);  
+                        titles.add(cell.toString());  
+                    }  
+                }else{//其他行是数据行  
+                	
+                    Map<String, String> rowMap = new HashMap<String, String>();//对应一个数据行  
+                    String  linestr ="";
+                    //for (int k = 0; k < titles.size(); k++) {  
+                    //k是列 
+                    for (int k = 0; k < cellSize; k++) {  
+                        Cell cell = row.getCell(k);  
+                        //String key = titles.get(k);  
+                        String value = null;  
+                        if (cell != null) {  
+                            value = cell.toString();  
+                            /**
+                             * 将列转为 文本形式后，避免 科学计数(如 2.423000E7等)的读取方式。
+                             * 可以读取处实际的数字 ，如 24000203 
+                             * 目前见到的最简单的方法：
+                             * HSSFCell cell = row.getCell(0);
+                             * if(cell.getCellType == HSSFCell.CELL_TYPE_NUMERIC){
+                             *     cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+                             *     String cellValue = cell.toString();
+                             * }
+                             * */
+                            cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+                            value = cell.getStringCellValue();
+                            
+                            for(int intA = 0; intA < intArray.length; intA++){  
+                            	if(intArray[intA] == k){
+                            		
+                            		
+                            		//value = "abc#123";
+                            		int i = value.indexOf("@");
+                            		if(i>0){
+                            			//有字符串
+                            			String a[] = value.split("@"); 	
+                            			value= a[0];
+                            			//System.out.println(a[0]);
+                            			//System.out.println(a[1]);
+                            		}else{
+                            			//-1
+                            			//System.out.println("没有@这个字符串");
+                            		}  
+                            		
+                            		linestr =linestr+"\'"+value+"\',";
+                            	}
+                            }                        
+                            
+                            //System.out.print(value+",");
+                        }  
+                        //rowMap.put(key, value);  
+                    }  
+                    //sheetList.add(rowMap);  
+                    //System.out.println(linestr);
+                    String strline = "INSERT INTO public.cus_application_list(application_name,product_id,service_name,product_name,product_code,cp, expenses_type)VALUES ("+linestr+");";
+                    list.add(strline);
+                }  
+            }         
+	    
+	    } catch (FileNotFoundException e) {  
+	        throw e;  
+	    } finally {  
+	        if (wb != null) {  
+	            wb.close();  
+	        }  
+	        if (is != null) {  
+	            is.close();  
+	        }  
+	    } 
+	    
+	    return list;
+	}  
+	
+	
 
 }
